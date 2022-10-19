@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import ScrollToBottom from 'react-scroll-to-bottom'
+import { addMessage } from '../features/Messages/messageSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Chat = ({ username, socket }) => {
     const [ message, setMessage ] = useState("");
-    const [ messageList,  setMessageList ] = useState([]);
+    // const [ messageList,  setMessageList ] = useState([]);
     const [ room, setRoom ] = useState("");
+
+    const messageList = useSelector((state) => state.messages.messageList);
+    console.log(messageList);
+    const dispatch = useDispatch();
 
     const sendMessage = async (e) => {
         if(message !== "") {
@@ -16,7 +22,8 @@ const Chat = ({ username, socket }) => {
                 new Date(Date.now()).getMinutes()
             }
             await socket.emit("send_message", messageData);
-            setMessageList(list => [...list, messageData]);
+            dispatch(addMessage(messageData));
+            // setMessageList(list => [...list, messageData]);
         }
         setMessage("");
 
@@ -25,7 +32,8 @@ const Chat = ({ username, socket }) => {
 
     useEffect(() => {
         socket.on("receive_message", data => {
-            setMessageList(list => [...list, data]);
+            // setMessageList(list => [...list, data]);
+            dispatch(addMessage(data));
         });
 
         // receive the room
